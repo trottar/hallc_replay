@@ -201,6 +201,7 @@ void THcPShowerCalib::Init() {
   gROOT->Reset();
 
   char* fname = Form("ROOTfiles/coin_replay_production_%s.root",fRunNumber.c_str());
+  // char* fname = Form("ROOTfiles/coin_replay_%s.root",fRunNumber.c_str());
   cout << "THcPShowerCalib::Init: Root file name = " << fname << endl;
 
   TFile *f = new TFile(fname);
