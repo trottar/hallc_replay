@@ -713,6 +713,7 @@ public :
    Double_t        P_cal_etotnorm;
    Double_t        P_cal_etrack;
    Double_t        P_cal_etracknorm;
+   Double_t        P_cal_etottracknorm;
    Double_t        P_cal_fly_earray;
    Double_t        P_cal_fly_nclust;
    Double_t        P_cal_fly_nghits;
@@ -1544,6 +1545,7 @@ public :
    TBranch        *b_P_cal_etotnorm;   //!
    TBranch        *b_P_cal_etrack;   //!
    TBranch        *b_P_cal_etracknorm;   //!
+   TBranch        *b_P_cal_etottracknorm;   //!
    TBranch        *b_P_cal_fly_earray;   //!
    TBranch        *b_P_cal_fly_nclust;   //!
    TBranch        *b_P_cal_fly_nghits;   //!
@@ -2410,6 +2412,7 @@ void calibration::Init(TTree *tree)
    fChain->SetBranchAddress("P.cal.etotnorm", &P_cal_etotnorm, &b_P_cal_etotnorm);
    fChain->SetBranchAddress("P.cal.etrack", &P_cal_etrack, &b_P_cal_etrack);
    fChain->SetBranchAddress("P.cal.etracknorm", &P_cal_etracknorm, &b_P_cal_etracknorm);
+   fChain->SetBranchAddress("P.cal.etottracknorm", &P_cal_etottracknorm, &b_P_cal_etottracknorm);
    fChain->SetBranchAddress("P.cal.fly.earray", &P_cal_fly_earray, &b_P_cal_fly_earray);
    fChain->SetBranchAddress("P.cal.fly.nclust", &P_cal_fly_nclust, &b_P_cal_fly_nclust);
    fChain->SetBranchAddress("P.cal.fly.nghits", &P_cal_fly_nghits, &b_P_cal_fly_nghits);
@@ -2615,6 +2618,7 @@ Bool_t calibration::Notify()
 
 
 //Poisson distribution is used to remove background from larger values of NPE
+// ([Amplitude]*pow([#mu],x)*exp(-[#mu]))/(tgamma(x+1))
 Double_t poisson(Double_t *x, Double_t *par)
 {
   Double_t result1 = (par[1]*pow(par[0],x[0])*exp(-par[0]))/(tgamma(x[0]+1));

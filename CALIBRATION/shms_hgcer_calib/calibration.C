@@ -77,7 +77,7 @@ void calibration::SlaveBegin(TTree * /*tree*/)
 
   printf("\n\n");
   TString option = GetOption();
- 
+  /*
   TString timing_mean_1 = option(option.Length()-79,option.Length()-69);
   TString timing_std_1  = option(option.Length()-67,option.Length()-60);
   TString timing_mean_2 = option(option.Length()-59,option.Length()-49);
@@ -95,7 +95,7 @@ void calibration::SlaveBegin(TTree * /*tree*/)
   timing_std[2]  = timing_std_3.Atof();
   timing_mean[3] = timing_mean_4.Atof();
   timing_std[3]  = timing_std_4.Atof();
-  
+  */
   //Check option
   if (option.Contains("readall")) fFullRead = kTRUE;
   if (option.Contains("NGC")) fNGC = kTRUE;
@@ -161,11 +161,11 @@ void calibration::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(fTiming_Full);
 
   //Particle ID cut visualization
-  fCut_everything = new TH2F("Cut_everything", "Visualization of no cuts; Calorimeter Energy (GeV); Pre-Shower Energy (GeV)", 250, 0, 1.0, 250, 0, 1.0);
+  fCut_everything = new TH2F("Cut_everything", "Visualization of no cuts; Calorimeter Energy (GeV); Pre-Shower Energy (GeV)", 250, 0, 1.5, 250, 0, 1.5);
   GetOutputList()->Add(fCut_everything);
-  fCut_electron = new TH2F("Cut_electron", "Visualization of electron cut; Calorimeter Energy (GeV); Pre-Shower Energy (GeV)", 250, 0, 1.0, 250, 0, 1.0);
+  fCut_electron = new TH2F("Cut_electron", "Visualization of electron cut; Calorimeter Energy (GeV); Pre-Shower Energy (GeV)", 250, 0, 1.5, 250, 0, 1.5);
   GetOutputList()->Add(fCut_electron);
-  fCut_pion = new TH2F("Cut_pion", "Visualization of pion cut; Calorimeter Energy (GeV); Pre-Shower Energy (GeV)", 250, 0, 1.0, 250, 0, 1.0);
+  fCut_pion = new TH2F("Cut_pion", "Visualization of pion cut; Calorimeter Energy (GeV); Pre-Shower Energy (GeV)", 250, 0, 1.5, 250, 0, 1.5);
   GetOutputList()->Add(fCut_pion);
 
   printf("\n\n");
@@ -193,7 +193,7 @@ Bool_t calibration::Process(Long64_t entry)
 
   //Output to verify script is working, and store the total number of events
   if (entry % 100000 == 0) printf("Processing Entry number %lld\n",entry);
-
+  /*
   if (entry == 1)
     {
       cout << timing_mean[0] << "   " << timing_std[0] << endl;
@@ -201,7 +201,7 @@ Bool_t calibration::Process(Long64_t entry)
       cout << timing_mean[2] << "   " << timing_std[2] << endl;
       cout << timing_mean[3] << "   " << timing_std[3] << endl;
     }
-  
+  */
   //Define quantities to loop over
   Int_t fpmts;
   fpmts = fNGC ? fngc_pmts : fhgc_pmts;   //Note HGC & NGC have the same # of PMTS
@@ -226,11 +226,12 @@ Bool_t calibration::Process(Long64_t entry)
       for (Int_t ipmt = 0; ipmt < fpmts; ipmt++) 
 	{	  
 	  //Perform a loose timing cut
+	  /*
 	  if (!fFullRead) fNGC ? b_P_ngcer_goodAdcTdcDiffTime->GetEntry(entry) : b_P_hgcer_goodAdcTdcDiffTime->GetEntry(entry);
 	  fTiming_Full->Fill(fNGC ? P_ngcer_goodAdcTdcDiffTime[ipmt] : P_hgcer_goodAdcTdcDiffTime[ipmt]);
 	  if (fNGC ? P_ngcer_goodAdcTdcDiffTime[ipmt] > -10.0 || P_ngcer_goodAdcTdcDiffTime[ipmt] < -35.0 : TMath::Abs(P_hgcer_goodAdcTdcDiffTime[ipmt] - timing_mean[ipmt]) > 3*timing_std[ipmt]) continue;
 	  fTiming_Cut->Fill(fNGC ? P_ngcer_goodAdcTdcDiffTime[ipmt] : P_hgcer_goodAdcTdcDiffTime[ipmt]);
-
+	  */
 	  //Cuts to remove entries corresponding to a PMT not registering a hit	  
 	  if (!fFullRead) fNGC ? b_P_ngcer_goodAdcPulseInt->GetEntry(entry) : b_P_hgcer_goodAdcPulseInt->GetEntry(entry);
 	  if (fNGC ? P_ngcer_goodAdcPulseInt[ipmt] == 0.0 : P_hgcer_goodAdcPulseInt[ipmt] == 0.0) continue;
@@ -249,16 +250,16 @@ Bool_t calibration::Process(Long64_t entry)
 	      fCut_everything->Fill(P_cal_fly_earray/p, P_cal_pr_eplane/p);
 
 	      //Cut on Shower vs preshower is a tilted ellipse, this requires an angle of rotation (in radians), x/y center, semimajor and semiminor axis
-	      /*Float_t eangle = 3.0*3.14159/4.0;
-	      Float_t ex_center = 0.66;
-	      Float_t ey_center = 0.35;
-	      Float_t esemimajor_axis = 0.28;
-	      Float_t esemiminor_axis = 0.04;*/
+	      Float_t eangle = 3.0*3.14159/4.0;
+	      Float_t ex_center = 0.95;
+	      Float_t ey_center = 0.60;
+	      Float_t esemimajor_axis = 0.40;
+	      Float_t esemiminor_axis = 0.10;/*
 	      Float_t eangle = 3.0*3.14159/4.0;
 	      Float_t ex_center = 0.375;
 	      Float_t ey_center = 0.360;
 	      Float_t esemimajor_axis = 0.38;
-	      Float_t esemiminor_axis = 0.05;
+	      Float_t esemiminor_axis = 0.05;*/
 	      if (pow((P_cal_fly_earray/p - ex_center)*cos(eangle) + (P_cal_pr_eplane/p - ey_center)*sin(eangle),2)/pow(esemimajor_axis,2) + 
 		  pow((P_cal_fly_earray/p - ex_center)*sin(eangle) - (P_cal_pr_eplane/p - ey_center)*cos(eangle),2)/pow(esemiminor_axis,2) < 1)
 		{
@@ -390,7 +391,7 @@ Bool_t calibration::Process(Long64_t entry)
 	      if (!fFullRead) fNGC ? b_P_ngcer_numTracksFired->GetEntry(entry) : b_P_hgcer_numTracksFired->GetEntry(entry);
 	      for (Int_t iregion = 0; iregion < 4; iregion++)
 		{
-		  if (fNGC ? P_ngcer_numTracksFired[iregion] == (iregion + 1) : P_hgcer_numTracksFired[iregion] == (iregion + 1))
+		  if (fNGC ? P_ngcer_numTracksFired[iregion] == iregion+1 : P_hgcer_numTracksFired[iregion] == iregion+1)
 		    fNGC ? fPulseInt_quad[iregion][ipmt]->Fill(P_ngcer_goodAdcPulseInt[ipmt]) : fPulseInt_quad[iregion][ipmt]->Fill(P_hgcer_goodAdcPulseInt[ipmt]);
 		}
 	    }//Marks end of tracksfired strategy with no particle ID
@@ -410,10 +411,10 @@ Bool_t calibration::Process(Long64_t entry)
 
 	      //Cut on Shower vs preshower is a tilted ellipse, this requires an angle of rotation (in radians), x/y center, semimajor and semiminor axis
 	      Float_t eangle = 3.0*3.14159/4;
-	      Float_t ex_center = 0.375;
-	      Float_t ey_center = 0.360;
-	      Float_t esemimajor_axis = 0.38;
-	      Float_t esemiminor_axis = 0.05;
+	      Float_t ex_center = 0.670;
+	      Float_t ey_center = 0.380;
+	      Float_t esemimajor_axis = 0.45;
+	      Float_t esemiminor_axis = 0.10;
 	      if (pow((P_cal_fly_earray/p - ex_center)*cos(eangle) + (P_cal_pr_eplane/p - ey_center)*sin(eangle),2)/pow(esemimajor_axis,2) + 
 		  pow((P_cal_fly_earray/p - ex_center)*sin(eangle) - (P_cal_pr_eplane/p - ey_center)*cos(eangle),2)/pow(esemiminor_axis,2) < 1)
 		{
@@ -526,7 +527,7 @@ void calibration::Terminate()
 	fNGC ? PulseInt[ipmt]->Rebin(4) : PulseInt[ipmt]->Rebin(4);
       }
   }
-
+  /*
   //Canvases to display cut information
   if (fFullShow)
     {
@@ -549,7 +550,7 @@ void calibration::Terminate()
 
       fTiming_Cut->Draw();
    } 
-  
+  */
   //Show the particle cuts performed in the histogram forming
   if (fCut)
     {
@@ -836,12 +837,12 @@ void calibration::Terminate()
 	      //Perform search for the SPE and save the peak into the array xpeaks
 	      if (fFullShow) quad_cuts_ipmt->cd(iquad+1);
 
-	      fNGC ? PulseInt_quad[iquad][ipmt]->GetXaxis()->SetRangeUser(0,30) : PulseInt_quad[ipmt][ipmt]->GetXaxis()->SetRangeUser(0,30);
-	      fFullShow ? s->Search(PulseInt_quad[iquad][ipmt], 1.0, "nobackground", 0.001) : s->Search(PulseInt_quad[iquad][ipmt], 1.5, "nobackground&&nodraw", 0.001);
+	      //fNGC ? PulseInt_quad[iquad][ipmt]->GetXaxis()->SetRangeUser(0,30) : PulseInt_quad[ipmt][ipmt]->GetXaxis()->SetRangeUser(0,30);
+	      fFullShow ? s->Search(PulseInt_quad[iquad][ipmt], 1.5, "nobackground", 0.001) : s->Search(PulseInt_quad[iquad][ipmt], 1.5, "nobackground&&nodraw", 0.001);
 	      TList *functions = PulseInt_quad[iquad][ipmt]->GetListOfFunctions();
 	      TPolyMarker *pm = (TPolyMarker*)functions->FindObject("TPolyMarker");
 	      Double_t *xpeaks = pm->GetX();
-	      PulseInt_quad[iquad][ipmt]->GetXaxis()->SetRangeUser(-1,200);
+	      //PulseInt_quad[iquad][ipmt]->GetXaxis()->SetRangeUser(-1,200);
 
 	      //Use the peak to fit the SPE with a Gaussian to determine the mean
 	      Gauss1->SetRange(xpeaks[0]-3, xpeaks[0]+3);
@@ -853,7 +854,7 @@ void calibration::Terminate()
 	      fFullShow ? PulseInt_quad[iquad][ipmt]->Fit("Gauss1","RQ") : PulseInt_quad[iquad][ipmt]->Fit("Gauss1","RQN");
 
 	      //Store the mean of the SPE in the mean array provided it is not zero, passes a loose statistical cut, and is above a minimum channel number
-	      if (xpeaks[0] != 0.0 && PulseInt_quad[iquad][ipmt]->GetBinContent(PulseInt_quad[iquad][ipmt]->GetXaxis()->FindBin(xpeaks[0])) > 10 && ipmt != iquad) mean[iquad] = Gauss1->GetParameter(1);
+	      if (xpeaks[0] != 0.0 && PulseInt_quad[iquad][ipmt]->GetBinContent(PulseInt_quad[iquad][ipmt]->GetXaxis()->FindBin(xpeaks[0])) > 20 && ipmt != iquad) mean[iquad] = Gauss1->GetParameter(1);
 	    }
 	  
 	  Double_t xscale = 0.0;

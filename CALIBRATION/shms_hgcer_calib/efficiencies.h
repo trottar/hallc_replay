@@ -28,6 +28,8 @@ public :
    Bool_t          fShowall;
    Bool_t          fChercut;
    Bool_t          fNGC;
+   Bool_t          fDelta;
+   Bool_t          fPosition;
    Float_t         fHGC_cut;
    Float_t         fNGC_cut;
 
@@ -47,6 +49,10 @@ public :
    TH2F           *fFly_Pr_Full;
    TH2F           *fFly_Pr_eCut;
    TH2F           *fFly_Pr_piCut;
+   TH1F           *fDelta_Full;
+   TH1F           *fDelta_Cut;
+   TH2F           *fPosition_Full;
+   TH2F           *fPosition_Cut;
 
    // Declaration of leaf types
    Int_t           Ndata_P_aero_goodNegAdcPed;
@@ -685,6 +691,7 @@ public :
    Double_t        P_cal_etotnorm;
    Double_t        P_cal_etrack;
    Double_t        P_cal_etracknorm;
+   Double_t        P_cal_etottracknorm;
    Double_t        P_cal_fly_earray;
    Double_t        P_cal_fly_nclust;
    Double_t        P_cal_fly_nghits;
@@ -754,6 +761,8 @@ public :
    Double_t        P_hgcer_totNumGoodAdcHits;
    Double_t        P_hgcer_totNumTracksFired;
    Double_t        P_hgcer_totNumTracksMatched;
+   Double_t        P_hgcer_xAtCer;
+   Double_t        P_hgcer_yAtCer;
    Double_t        P_hod_1x_fptime;
    Double_t        P_hod_1x_ngoodhits;
    Double_t        P_hod_1x_nhits;
@@ -1514,6 +1523,7 @@ public :
    TBranch        *b_P_cal_etotnorm;   //!
    TBranch        *b_P_cal_etrack;   //!
    TBranch        *b_P_cal_etracknorm;   //!
+   TBranch        *b_P_cal_etottracknorm;   //!
    TBranch        *b_P_cal_fly_earray;   //!
    TBranch        *b_P_cal_fly_nclust;   //!
    TBranch        *b_P_cal_fly_nghits;   //!
@@ -1583,6 +1593,8 @@ public :
    TBranch        *b_P_hgcer_totNumGoodAdcHits;   //!
    TBranch        *b_P_hgcer_totNumTracksFired;   //!
    TBranch        *b_P_hgcer_totNumTracksMatched;   //!
+   TBranch        *b_P_hgcer_xAtCer;
+   TBranch        *b_P_hgcer_yAtCer;
    TBranch        *b_P_hod_1x_fptime;   //!
    TBranch        *b_P_hod_1x_ngoodhits;   //!
    TBranch        *b_P_hod_1x_nhits;   //!
@@ -1705,7 +1717,7 @@ public :
    TBranch        *b_Event_Branch_fEvtHdr_fTargetPol;   //!
    TBranch        *b_Event_Branch_fEvtHdr_fRun;   //!
 
- efficiencies(TTree *  =0) : fChain(0) {fNPE_eNoDet = 0, fNPE_eDet = 0, fNPE_piNoDet = 0, fNPE_piDet = 0, fNPE_Full_eNoDet = 0, fNPE_Full_eDet = 0, fNPE_Full_piNoDet = 0, fNPE_Full_piDet = 0, fBeta_Cut = 0, fBeta_Full = 0, fTiming_Cut = 0, fTiming_Full = 0, fFly_Pr_Full = 0, fFly_Pr_eCut = 0, fFly_Pr_piCut = 0, fShowall = kFALSE, fChercut = kFALSE, fNGC = kFALSE, fHGC_cut = 2.0, fNGC_cut = 2.0;}
+ efficiencies(TTree *  =0) : fChain(0) {fNPE_eNoDet = 0, fNPE_eDet = 0, fNPE_piNoDet = 0, fNPE_piDet = 0, fNPE_Full_eNoDet = 0, fNPE_Full_eDet = 0, fNPE_Full_piNoDet = 0, fNPE_Full_piDet = 0, fBeta_Cut = 0, fBeta_Full = 0, fTiming_Cut = 0, fTiming_Full = 0, fFly_Pr_Full = 0, fFly_Pr_eCut = 0, fFly_Pr_piCut = 0, fDelta_Full = 0, fDelta_Cut = 0, fPosition_Full = 0, fPosition_Cut = 0, fShowall = kFALSE, fChercut = kFALSE, fNGC = kFALSE, fDelta = kFALSE, fPosition = kFALSE, fHGC_cut = 2.0, fNGC_cut = 2.0;}
    virtual ~efficiencies() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
@@ -2378,6 +2390,7 @@ void efficiencies::Init(TTree *tree)
    fChain->SetBranchAddress("P.cal.etotnorm", &P_cal_etotnorm, &b_P_cal_etotnorm);
    fChain->SetBranchAddress("P.cal.etrack", &P_cal_etrack, &b_P_cal_etrack);
    fChain->SetBranchAddress("P.cal.etracknorm", &P_cal_etracknorm, &b_P_cal_etracknorm);
+   fChain->SetBranchAddress("P.cal.etottracknorm", &P_cal_etottracknorm, &b_P_cal_etottracknorm);
    fChain->SetBranchAddress("P.cal.fly.earray", &P_cal_fly_earray, &b_P_cal_fly_earray);
    fChain->SetBranchAddress("P.cal.fly.nclust", &P_cal_fly_nclust, &b_P_cal_fly_nclust);
    fChain->SetBranchAddress("P.cal.fly.nghits", &P_cal_fly_nghits, &b_P_cal_fly_nghits);
@@ -2447,6 +2460,8 @@ void efficiencies::Init(TTree *tree)
    fChain->SetBranchAddress("P.hgcer.totNumGoodAdcHits", &P_hgcer_totNumGoodAdcHits, &b_P_hgcer_totNumGoodAdcHits);
    fChain->SetBranchAddress("P.hgcer.totNumTracksFired", &P_hgcer_totNumTracksFired, &b_P_hgcer_totNumTracksFired);
    fChain->SetBranchAddress("P.hgcer.totNumTracksMatched", &P_hgcer_totNumTracksMatched, &b_P_hgcer_totNumTracksMatched);
+   fChain->SetBranchAddress("P.hgcer.xAtCer", &P_hgcer_xAtCer, &b_P_hgcer_xAtCer);
+   fChain->SetBranchAddress("P.hgcer.yAtCer", &P_hgcer_yAtCer, &b_P_hgcer_yAtCer);
    fChain->SetBranchAddress("P.hod.1x.fptime", &P_hod_1x_fptime, &b_P_hod_1x_fptime);
    fChain->SetBranchAddress("P.hod.1x.ngoodhits", &P_hod_1x_ngoodhits, &b_P_hod_1x_ngoodhits);
    fChain->SetBranchAddress("P.hod.1x.nhits", &P_hod_1x_nhits, &b_P_hod_1x_nhits);

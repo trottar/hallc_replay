@@ -38,8 +38,12 @@ void replay_production_shms_coin_all (Int_t RunNumber = 0, Int_t MaxEvent = 0) {
 
   // Load the Hall C detector map
   gHcDetectorMap = new THcDetectorMap();
-  gHcDetectorMap->Load("MAPS/SHMS/DETEC/STACK/shms_stack.map");
-  
+  if ( RunNumber>=4272 && RunNumber<=4274 ) {
+    gHcDetectorMap->Load("shms_stack_4272-4274.map");
+  } else {
+    gHcDetectorMap->Load("MAPS/SHMS/DETEC/STACK/shms_stack.map");
+  }
+
   // Set up the equipment to be analyzed.
   THcHallCSpectrometer* SHMS = new THcHallCSpectrometer("P", "SHMS");
   SHMS->SetEvtType(1);

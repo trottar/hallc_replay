@@ -48,6 +48,8 @@ void efficiencies::Begin(TTree * /*tree*/)
   Info("Begin", "If cut desired on other Cherenkov, use option Chercut");
   Info("Begin", "Photoelectron cut is taken as first decimal number entered. Default is 2.0");
   Info("Begin", "If cut on other Chenekov is requested, it will be taken as the second decimal number. Default is 2.0");
+  Info("Begin", "If delta scan of efficiency is desired, use option delta");
+  Info("Begin", "If position scan of efficiency is desired, use option delta");
   printf("\n\n");
 
   //Check option
@@ -55,6 +57,8 @@ void efficiencies::Begin(TTree * /*tree*/)
   if (option.Contains("showall")) fShowall = kTRUE;
   if (option.Contains("Chercut")) fChercut = kTRUE;
   if (option.Contains("NGC")) fNGC = kTRUE;
+  if (option.Contains("delta")) fDelta = kTRUE;
+  if (option.Contains("position")) fPosition = kTRUE;
 
   //if a number is entered as %f.%f take that as the photoelectron cutoff
   if (option.Contains(re))
@@ -82,6 +86,8 @@ void efficiencies::SlaveBegin(TTree * /*tree*/)
   if (option.Contains("showall")) fShowall = kTRUE;
   if (option.Contains("Chercut")) fChercut = kTRUE;
   if (option.Contains("NGC")) fNGC = kTRUE;
+  if (option.Contains("delta")) fDelta = kTRUE;
+  if (option.Contains("position")) fPosition = kTRUE;
   if (option.Contains(re))
     { 
       TString cut_val = option.operator()(re);
@@ -98,6 +104,8 @@ void efficiencies::SlaveBegin(TTree * /*tree*/)
   Info("SlaveBegin", "efficiency for %s is found", fNGC ? "NGC" : "HGC");
   Info("SlaveBegin", "Number of photoelectrons to cut on is %f", fNGC ? fNGC_cut : fHGC_cut);
   if (fChercut) Info("SlaveBegin", "Number of photoelectrons to cut on in other Cherenkov %f", fNGC ? fHGC_cut : fNGC_cut);
+  if (fDelta) Info("SlaveBegin", "Giving delta scan");
+  if (fPosition) Info("SlaveBegin", "Giving position scan");
 
   printf("\n");
 
@@ -187,6 +195,17 @@ void efficiencies::SlaveBegin(TTree * /*tree*/)
   fFly_Pr_piCut = new TH2F("Fly_Pr_piCut", "calorimeter & preshower pions;Calorimeter (GeV);Pre-Shower (GeV)", 250, 0.0, 0.7, 250, 0.0, 0.8);
   GetOutputList()->Add(fFly_Pr_piCut);
 
+  //Histograms for delta scan
+  fDelta_Full = new TH1F("Delta_Full", "Delta Information, No HGC Cut;Delta (%);Counts",300,-30,30);
+  fDelta_Cut = new TH1F("Delta_Cut", "Delta Information, HGC Cut;Delta (%);Counts",300,-30,30);  
+  GetOutputList()->Add(fDelta_Full);
+  GetOutputList()->Add(fDelta_Cut);
+
+  //Histograms for position scan
+  fPosition_Full = new TH2F("Position_Full","Positional Information, No HGC Cut;X Position (cm);Y Position (cm)",100,-50,50,100,-50,50);
+  fPosition_Cut = new TH2F("Position_Cut","Positional Information, HGC Cut;X Position (cm);Y Position (cm)",100,-50,50,100,-50,50);
+  GetOutputList()->Add(fPosition_Full);
+  GetOutputList()->Add(fPosition_Cut);
   printf("\n\n");
 }
 
@@ -232,15 +251,17 @@ Bool_t efficiencies::Process(Long64_t entry)
       for (Int_t ipmt = 0; ipmt < hgc_pmts; ipmt++)
 	{
 	  //Require the signal passes a timing cut
+	  /*
 	  fNGC ? b_P_ngcer_goodAdcPulseTime->GetEntry(entry) : b_P_hgcer_goodAdcTdcDiffTime->GetEntry(entry);
 	  fTiming_Full->Fill(fNGC ?  P_ngcer_goodAdcPulseTime[ipmt] : P_hgcer_goodAdcTdcDiffTime[ipmt]);
 	  if (fNGC ? P_ngcer_goodAdcPulseTime[ipmt] < 50 || P_ngcer_goodAdcPulseTime[ipmt] > 125 :
-	  P_hgcer_goodAdcTdcDiffTime[ipmt] > -17.0 || P_hgcer_goodAdcTdcDiffTime[ipmt] < -30.0) continue;
+	  P_hgcer_goodAdcTdcDiffTime[ipmt] > -10.0 || P_hgcer_goodAdcTdcDiffTime[ipmt] < -25.0) continue;
 	  fTiming_Cut->Fill(fNGC ?  P_ngcer_goodAdcPulseTime[ipmt] : P_hgcer_goodAdcTdcDiffTime[ipmt]);
+	  */
 
 	  //Require the signal passes a tracking cut, with a threshold NPE cut as well
-	  fNGC ? b_P_ngcer_numTracksFired->GetEntry(entry) : b_P_hgcer_numTracksFired->GetEntry(entry);
-	  if (fNGC ? P_ngcer_numTracksFired[ipmt] == 0.0 : P_hgcer_numTracksFired[ipmt] == 0.0) continue;
+	  //fNGC ? b_P_ngcer_numTracksFired->GetEntry(entry) : b_P_hgcer_numTracksFired->GetEntry(entry);
+	  //  if (fNGC ? P_ngcer_numTracksFired[ipmt] == 0.0 : P_hgcer_numTracksFired[ipmt] == 0.0) continue;
 
 	  //Begin particle identification using calorimeter and NGC
 	  fNGC ? b_P_ngcer_npe->GetEntry(entry) : b_P_hgcer_npe->GetEntry(entry);	  
@@ -248,7 +269,11 @@ Bool_t efficiencies::Process(Long64_t entry)
 	  b_P_cal_fly_earray->GetEntry(entry);
 	  b_P_cal_pr_eplane->GetEntry(entry);
 	  b_P_gtr_dp->GetEntry(entry);
-	  Float_t central_p = 2.2;
+	  b_P_hgcer_yAtCer->GetEntry(entry);
+	  b_P_hgcer_xAtCer->GetEntry(entry);
+	  b_P_cal_etotnorm->GetEntry(entry);
+	  b_P_hgcer_npeSum->GetEntry(entry);
+	  Float_t central_p = 2.53;
 	  Float_t p = ((P_gtr_dp/100.0)*central_p) + central_p;
 
 	  //Visualize what we have to cut with
@@ -268,17 +293,21 @@ Bool_t efficiencies::Process(Long64_t entry)
 	  Float_t esemiminor_axis = 0.05;
 	  if (pow((P_cal_fly_earray/p - ex_center)*cos(eangle) + (P_cal_pr_eplane/p - ey_center)*sin(eangle),2)/pow(esemimajor_axis,2) + 
 	      pow((P_cal_fly_earray/p - ex_center)*sin(eangle) - (P_cal_pr_eplane/p - ey_center)*cos(eangle),2)/pow(esemiminor_axis,2) < 1)
-	    {
+	      {
 	      if (!fChercut || (fChercut && (fNGC ? P_hgcer_npeSum > fHGC_cut : P_ngcer_npeSum > fNGC_cut))) //condition if cut on other Cherenkov if desired
 		{
 		  fFly_Pr_eCut->Fill(P_cal_fly_earray/p, P_cal_pr_eplane/p);
 		  fNPE_eNoDet[ipmt]->Fill(fNGC ? P_ngcer_npe[ipmt] : P_hgcer_npe[ipmt]);
-		  fNPE_Full_eNoDet->Fill(fNGC ? P_ngcer_npe[ipmt] : P_hgcer_npe[ipmt]);
+		  //fNPE_Full_eNoDet->Fill(fNGC ? P_ngcer_npe[ipmt] : P_hgcer_npe[ipmt]);
+		  //fDelta_Full->Fill(P_gtr_dp);
+		  //fPosition_Full->Fill(P_hgcer_xAtCer,P_hgcer_yAtCer);
 	      
 		  if (fNGC ? P_ngcer_npe[ipmt] > fNGC_cut : P_hgcer_npe[ipmt] > fHGC_cut)  //Cut on detector to determine efficiency
 		    {
 		      fNPE_eDet[ipmt]->Fill(fNGC ? P_ngcer_npe[ipmt] : P_hgcer_npe[ipmt]);
-		      fNPE_Full_eDet->Fill(fNGC ? P_ngcer_npe[ipmt] : P_hgcer_npe[ipmt]);
+		      //fNPE_Full_eDet->Fill(fNGC ? P_ngcer_npe[ipmt] : P_hgcer_npe[ipmt]);
+		      //fDelta_Cut->Fill(P_gtr_dp);
+		      //fPosition_Cut->Fill(P_hgcer_xAtCer,P_hgcer_yAtCer);
 		    }
 		}
 	    }
@@ -312,6 +341,38 @@ Bool_t efficiencies::Process(Long64_t entry)
 	    }
 
 	}//End loop on PMTs
+
+      b_P_hgcer_totNumTracksFired->GetEntry(entry);
+      b_P_cal_etottracknorm->GetEntry(entry);
+
+      if (P_hgcer_totNumTracksFired == 0.0) return kTRUE;
+
+      Float_t central_p = 2.53;
+      Float_t p = ((P_gtr_dp/100.0)*central_p) + central_p;
+      Float_t eangle = 3.0*3.14159/4.0;
+      Float_t ex_center = 0.490;
+      Float_t ey_center = 0.400;
+      Float_t esemimajor_axis = 0.38;
+      Float_t esemiminor_axis = 0.05;
+      b_P_hgcer_npeSum->GetEntry(entry);
+      if (pow((P_cal_fly_earray/p - ex_center)*cos(eangle) + (P_cal_pr_eplane/p - ey_center)*sin(eangle),2)/pow(esemimajor_axis,2) + 
+	      pow((P_cal_fly_earray/p - ex_center)*sin(eangle) - (P_cal_pr_eplane/p - ey_center)*cos(eangle),2)/pow(esemiminor_axis,2) < 1)
+	      {
+		if (!fChercut || (fChercut && (fNGC ? P_hgcer_npeSum > fHGC_cut : P_ngcer_npeSum > fNGC_cut))) //condition if cut on other Cherenkov if desired
+		{
+		  fNPE_Full_eNoDet->Fill(P_hgcer_npeSum);
+		  fDelta_Full->Fill(P_gtr_dp);
+		  fPosition_Full->Fill(P_hgcer_xAtCer,P_hgcer_yAtCer);
+ 
+		  if (fNGC ? P_ngcer_npeSum > fNGC_cut : P_hgcer_npeSum > fHGC_cut)  //Cut on detector to determine efficiency
+		    {
+		      fNPE_Full_eDet->Fill(P_hgcer_npeSum);
+		      fDelta_Cut->Fill(P_gtr_dp);
+		      fPosition_Cut->Fill(P_hgcer_xAtCer,P_hgcer_yAtCer);
+		    }
+		}
+	    }
+      
     }//End loop over tracks
 
    return kTRUE;
@@ -335,6 +396,8 @@ void efficiencies::Terminate()
   Info("Terminate", "efficiency for %s is found", fNGC ? "NGC" : "HGC");
   Info("Terminate", "Number of photoelectrons to cut on is %f", fNGC ? fNGC_cut : fHGC_cut);
   if (fChercut) Info("Terminate", "Number of photoelectrons to cut on in other Cherenkov %f", fNGC ? fHGC_cut : fNGC_cut);
+  if (fDelta) Info("Terminate", "Giving delta scan");
+  if (fPosition) Info("Terminate", "Giving position scan");
 
   //Need to exact the histograms from the OutputList
   TH1F* NPE_eNoDet[4];
@@ -441,6 +504,29 @@ void efficiencies::Terminate()
       fNPE_Full_piNoDet->Draw();
       Det_piCut_Full->cd(2);
       fNPE_Full_piDet->Draw();
+    }
+
+  if (fDelta)
+    {
+      TCanvas *Delta = new TCanvas("Delta","Delta scan of efficiency");
+      TH1F *delta_eff = new TH1F("Delta_eff","Efficiency vs #delta;#delta (%);Counts",300,-30,30);
+      delta_eff->Divide(fDelta_Cut,fDelta_Full);
+      delta_eff->Draw();
+    }
+
+  if (fPosition)
+    {
+      TCanvas *Raw_Position = new TCanvas("Raw Position","Position scan");
+      Raw_Position->Divide(2,1);
+      Raw_Position->cd(1);
+      fPosition_Full->Draw("Colz");
+      Raw_Position->cd(2);
+      fPosition_Cut->Draw("Colz");
+
+      TCanvas *Position = new TCanvas("Position","Position scan of efficiency");
+      TH2F *position_eff = new TH2F("position_eff","Efficiency vs Position;X Position (cm);Y Position (cm)",100,-50,50,100,-50,50);
+      position_eff->Divide(fPosition_Cut,fPosition_Full);
+      position_eff->Draw("Colz");
     }
   
   //Output the actual efficiency information i.e. ratio of detected particles
