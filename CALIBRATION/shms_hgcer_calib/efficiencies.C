@@ -251,17 +251,17 @@ Bool_t efficiencies::Process(Long64_t entry)
       for (Int_t ipmt = 0; ipmt < hgc_pmts; ipmt++)
 	{
 	  //Require the signal passes a timing cut
-	  /*
+	  
 	  fNGC ? b_P_ngcer_goodAdcPulseTime->GetEntry(entry) : b_P_hgcer_goodAdcTdcDiffTime->GetEntry(entry);
 	  fTiming_Full->Fill(fNGC ?  P_ngcer_goodAdcPulseTime[ipmt] : P_hgcer_goodAdcTdcDiffTime[ipmt]);
 	  if (fNGC ? P_ngcer_goodAdcPulseTime[ipmt] < 50 || P_ngcer_goodAdcPulseTime[ipmt] > 125 :
 	  P_hgcer_goodAdcTdcDiffTime[ipmt] > -10.0 || P_hgcer_goodAdcTdcDiffTime[ipmt] < -25.0) continue;
 	  fTiming_Cut->Fill(fNGC ?  P_ngcer_goodAdcPulseTime[ipmt] : P_hgcer_goodAdcTdcDiffTime[ipmt]);
-	  */
+	  
 
 	  //Require the signal passes a tracking cut, with a threshold NPE cut as well
-	  //fNGC ? b_P_ngcer_numTracksFired->GetEntry(entry) : b_P_hgcer_numTracksFired->GetEntry(entry);
-	  //  if (fNGC ? P_ngcer_numTracksFired[ipmt] == 0.0 : P_hgcer_numTracksFired[ipmt] == 0.0) continue;
+	  fNGC ? b_P_ngcer_numTracksFired->GetEntry(entry) : b_P_hgcer_numTracksFired->GetEntry(entry);
+	  //if (fNGC ? P_ngcer_numTracksFired[ipmt] == 0.0 : P_hgcer_numTracksFired[ipmt] == 0.0) continue;
 
 	  //Begin particle identification using calorimeter and NGC
 	  fNGC ? b_P_ngcer_npe->GetEntry(entry) : b_P_hgcer_npe->GetEntry(entry);	  
@@ -273,7 +273,7 @@ Bool_t efficiencies::Process(Long64_t entry)
 	  b_P_hgcer_xAtCer->GetEntry(entry);
 	  b_P_cal_etotnorm->GetEntry(entry);
 	  b_P_hgcer_npeSum->GetEntry(entry);
-	  Float_t central_p = 2.53;
+	  Float_t central_p = 3.37;
 	  Float_t p = ((P_gtr_dp/100.0)*central_p) + central_p;
 
 	  //Visualize what we have to cut with
@@ -319,8 +319,8 @@ Bool_t efficiencies::Process(Long64_t entry)
 	  Float_t piy_center = 0.03;
 	  Float_t pisemimajor_axis = 0.1;
 	  Float_t pisemiminor_axis = 0.02;*/
-	  Float_t pix_center = 0.30;
-	  Float_t piy_center = 0.05;
+	  Float_t pix_center = 0.20;
+	  Float_t piy_center = 0.030;
 	  Float_t pisemimajor_axis = 0.08;
 	  Float_t pisemiminor_axis = 0.02;
 	  if (pow((P_cal_fly_earray/p - pix_center)*cos(piangle) + (P_cal_pr_eplane/p - piy_center)*sin(piangle),2)/pow(pisemimajor_axis,2) + 
@@ -341,16 +341,16 @@ Bool_t efficiencies::Process(Long64_t entry)
 	    }
 
 	}//End loop on PMTs
-
+      //*
       b_P_hgcer_totNumTracksFired->GetEntry(entry);
       b_P_cal_etottracknorm->GetEntry(entry);
 
-      if (P_hgcer_totNumTracksFired == 0.0) return kTRUE;
+      //if (P_hgcer_totNumTracksFired == 0.0) return kTRUE;
 
       Float_t central_p = 2.53;
       Float_t p = ((P_gtr_dp/100.0)*central_p) + central_p;
       Float_t eangle = 3.0*3.14159/4.0;
-      Float_t ex_center = 0.490;
+      Float_t ex_center = 0.700;
       Float_t ey_center = 0.400;
       Float_t esemimajor_axis = 0.38;
       Float_t esemiminor_axis = 0.05;
@@ -372,7 +372,7 @@ Bool_t efficiencies::Process(Long64_t entry)
 		    }
 		}
 	    }
-      
+      //*/
     }//End loop over tracks
 
    return kTRUE;
