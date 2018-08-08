@@ -22,7 +22,7 @@ if [[ $2 -eq "" && $3 -eq "" ]]; then
 fi
 cd ../
 echo -e "\n\nStarting Replay Script\n\n"
-hcana -q "UTIL_KAON/Replay_scripts/replay_production_coin.C($RUNNUMBER,$MAXEVENTS)"
-cd UTIL_KAON/KaonYield_scripts/
+hcana -q "UTIL_KAON/scripts_Replay/replay_production_coin.C($RUNNUMBER,$MAXEVENTS)"
+cd UTIL_KAON/scripts_KaonYield/
 echo -e "\n\nYield Calculation\n\n"
 root -l "run_KaonYield.C($RUNNUMBER,$MAXEVENTS,$THRESHOLD)"
