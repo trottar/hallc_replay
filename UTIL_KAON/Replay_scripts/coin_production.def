@@ -1,0 +1,19 @@
+block CTime.eKCoinTime_ROC1
+block P.gtr.beta
+block H.gtr.beta
+block H.cal.etotnorm
+block P.cal.etotnorm
+block P.aero.npeSum
+block P.hgcer.npeSum
+block H.gtr.dp
+block P.gtr.dp
+block P.kin.secondary.emiss
+block P.kin.secondary.pmiss
+block H.bcm.CurrentFlag
+block H.bcm.bcm4a.AvgCurrent
+block T.coin.hTRIG1_ROC1_tdcTime
+block T.coin.hEDTM_tdcTime
+
+begin epics
+
+end epics
