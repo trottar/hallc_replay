@@ -4,7 +4,7 @@
 #include <string>
 #include <stdio.h>
 
-void run_KaonYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_cut = 0)
+void run_KaonYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_cut = 0, Int_t pscal = 0)
 {
   // Get RunNumber, MaxEvent, and current threshold if not provided.
   if(RunNumber == 0) {
@@ -25,14 +25,20 @@ void run_KaonYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_c
     cin >> threshold_cut;
     if( threshold_cut<=0 ) return;
   }
+  if(pscal == 0) {
+    cout << "Enter a prescale factor: ";
+    cin >> pscal;
+    if( pscal<=0 ) return;
+  }
 
   //Begin Scaler Efficiency Calculation
   TString rootFileNameString = Form("../../ROOTfiles/coin_replay_production_%i_%i.root",RunNumber,MaxEvent);
   TString threshold = Form("%f",threshold_cut);
   TString runNum = Form("%d",RunNumber);
+  TString prescal = Form("%d", pscal);
   TString line1 = ".L coin_cut.C+";
   TString line2 = "coin_cut t(\"" + rootFileNameString + "\")";
-  TString line3 = "t.Loop(\"" + runNum + "\"," + threshold + ")";
+  TString line3 = "t.Loop(\"" + runNum + "\"," + threshold + "," + prescal + ")";
 
   gROOT->ProcessLine(line1);
   gROOT->ProcessLine(line2);

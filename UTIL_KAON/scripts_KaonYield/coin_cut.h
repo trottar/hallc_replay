@@ -32,8 +32,8 @@ class coin_cut{
   Double_t        Scal_cut_TRIG1;
   Double_t        Scal_cut_EDTM;
   Double_t        Scal_time;
-  Double_t        T_coin_hTRIG1_tdcTime;
-  Double_t        T_coin_hEDTM_tdcTime;
+  Double_t        T_coin_pTRIG1_ROC2_tdcTime;
+  Double_t        T_coin_pEDTM_tdcTime;
   TBranch        *b_Scal_time;
   TBranch        *b_Scal_cut_TRIG1;
   TBranch        *b_Scal_cut_EDTM;
@@ -42,8 +42,8 @@ class coin_cut{
   TBranch        *b_Scal_BCM4A_current;
   TBranch        *b_Scal_BCM4A_charge;
   TBranch        *b_Scal_evNumber;
-  TBranch        *b_T_coin_hTRIG1_tdcTime;   //!
-  TBranch        *b_T_coin_hEDTM_tdcTime;   //!
+  TBranch        *b_T_coin_pTRIG1_ROC2_tdcTime;   //!
+  TBranch        *b_T_coin_pEDTM_tdcTime;   //!
   //THaEvent        *Event_Branch;
    ULong64_t       fEvtHdr_fEvtTime;
    UInt_t          fEvtHdr_fEvtNum;
@@ -62,7 +62,7 @@ class coin_cut{
   virtual Long64_t LoadScalTree(Long64_t entry);
   virtual void    Init(TTree *tree);
   virtual void    InitScal(TTree *tree);
-  virtual void    Loop(TString basename,Double_t threshold_cut);
+  virtual void    Loop(TString basename,Double_t threshold_cut, Int_t pscal);
   virtual Bool_t  Notify();
   virtual void    Show(Long64_t entry = -1);
 };
@@ -158,8 +158,8 @@ void coin_cut::Init(TTree *tree)
    fChain = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);
-   fChain->SetBranchAddress("T.coin.hTRIG1_ROC1_tdcTime", &T_coin_hTRIG1_tdcTime, &b_T_coin_hTRIG1_tdcTime);
-   fChain->SetBranchAddress("T.coin.hEDTM_tdcTime", &T_coin_hEDTM_tdcTime, &b_T_coin_hEDTM_tdcTime);
+   fChain->SetBranchAddress("T.coin.pTRIG1_ROC2_tdcTime", &T_coin_pTRIG1_ROC2_tdcTime, &b_T_coin_pTRIG1_ROC2_tdcTime);
+   fChain->SetBranchAddress("T.coin.pEDTM_tdcTime", &T_coin_pEDTM_tdcTime, &b_T_coin_pEDTM_tdcTime);
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the reader is initialized.
   // It is normally not necessary to make changes to the generated

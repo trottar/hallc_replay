@@ -17,7 +17,7 @@
 #include <fstream>
 using namespace std;
 
-void coin_cut::Loop(TString basename,Double_t threshold_cut)
+void coin_cut::Loop(TString basename,Double_t threshold_cut, Int_t pscal)
 {
 ///*
 //   In a ROOT session, you can do:
@@ -67,11 +67,11 @@ void coin_cut::Loop(TString basename,Double_t threshold_cut)
   TH1F *trig[6]; 
   TH1F *trigcut[6];
   for (Int_t n=0;n<6;n++) {
-    trig[n] =  new TH1F(Form("Htrig_%d",n+1),Form("Trig %d Time ",n+1),1000,0,1000);
+    trig[n] =  new TH1F(Form("ptrig_%d",n+1),Form("Trig %d Time ",n+1),1000,0,1000);
     trigcut[n] =  new TH1F(Form("Htrigcut_%d",n+1),Form("Trig %d ( cut I> %5.2f; Time;Counts",n+1,threshold_cut),1000,0,1000);
   }
-    TH1F *hedtm =  new TH1F("hedtm","EDTM; Time; counts",1000,0,1000);
-    TH1F *hedtmcut =  new TH1F("hedtmcut",Form("EDTM (cut I> %5.2f; Time; counts",threshold_cut),1000,0,1000);
+    TH1F *pedtm =  new TH1F("pedtm","EDTM; Time; counts",1000,0,1000);
+    TH1F *pedtmcut =  new TH1F("pedtmcut",Form("EDTM (cut I> %5.2f; Time; counts",threshold_cut),1000,0,1000);
     
   //
      Int_t nscal_reads=0;
@@ -93,6 +93,7 @@ void coin_cut::Loop(TString basename,Double_t threshold_cut)
      Double_t tot_scal_cut_time=0;
      Double_t tot_scal_time=0;
      Double_t prev_time=0;
+     Double_t prescal[17] = {1,2,3,5,9,17,33,65,129,257,513,1025,2049,4097,8193,16385,32769};
    //
    if (fChain == 0) return;
 
@@ -141,17 +142,11 @@ void coin_cut::Loop(TString basename,Double_t threshold_cut)
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       if (jentry%50000==0) cout << " entry = " << jentry << endl;
-      //Bool_t good_elec=H_cer_npeSum >2.&&H_cal_etotnorm>.7&&H_cal_etotnorm<1.5;
-      //if (good_elec) hHGnpesum->Fill(H_cer_npeSum);
-      if (T_coin_hTRIG1_tdcTime!=0) trig[0]->Fill(T_coin_hTRIG1_tdcTime);
-      hedtm->Fill(T_coin_hEDTM_tdcTime);
+      if (T_coin_pTRIG1_ROC2_tdcTime!=0) trig[0]->Fill(T_coin_pTRIG1_ROC2_tdcTime);
+      pedtm->Fill(T_coin_pEDTM_tdcTime);
       if (event_flag[nscal_reads_2]==1) {
-         //if (good_elec) hHGnpesumcut->Fill(H_cer_npeSum);	
-         //if (good_elec) hHodGoodcut->Fill(H_hod_goodscinhit);	
-         //if (good_elec&&H_dc_ntrack>0) hHodGoodcuttrack->Fill(H_hod_goodscinhit);	
-         //if (good_elec&&H_gtr_dp>-8.&&H_gtr_dp<8.) hHGnpesumcuttrack->Fill(H_cer_npeSum);	
-         if (T_coin_hTRIG1_tdcTime!=0) trigcut[0]->Fill(T_coin_hTRIG1_tdcTime);
-         hedtmcut->Fill(T_coin_hEDTM_tdcTime);
+         if (T_coin_pTRIG1_ROC2_tdcTime!=0) trigcut[0]->Fill(T_coin_pTRIG1_ROC2_tdcTime);
+         pedtmcut->Fill(T_coin_pEDTM_tdcTime);
       }
       if (fEvtHdr_fEvtNum>scal_event_number[nscal_reads_2]) {
           nscal_reads_2++;
@@ -164,6 +159,25 @@ void coin_cut::Loop(TString basename,Double_t threshold_cut)
    cout << " number of scaler reads (cut)= " << nscal_reads_cut << endl;
    cout << " total charge (cut) = " << charge_sum_cut/1000 << " mC"  <<endl;
    cout << " average current (cut) = " << ave_current_cut/(nscal_reads_cut) <<endl;
+
+   //cout << "\n Integral scal EDTM no cut = " << tot_scal_EDTM << endl;
+   //cout << " Integral scal EDTM cut = " << tot_scal_cut_EDTM << endl;
+   cout << " Integral Data EDTM no cut = " << pedtm->Integral() << endl;
+   cout << " ~~~~~Integral Data EDTM cut = " << pedtmcut->Integral(0,1) << endl;
+
+   Double_t edtm_lt= (100-pedtmcut->Integral()/(tot_scal_cut_EDTM*prescal[pscal]))/100;
+
+   cout << "\n EDTM Lifetime = " << edtm_lt << endl;
+
+   //cout << "\n Integral scal TRIG1 no cut = " << tot_scal_TRIG1 << endl;
+   //cout << " Integral scal TRIG1 cut = " << tot_scal_cut_TRIG1 << endl;
+   //cout << " Integral TRIG1 no cut = " << trig[0]->Integral() << endl;
+   //cout << " ~~~Integral TRIG1 cut = " << trig[0]->Integral(0,1) << endl;
+
+   Double_t cpult= (100 - trigcut[0]->Integral()/tot_scal_cut_TRIG1)/100;
+
+   cout << "\n Computer Lifetime = " << cpult << endl;
+
 //*/
 // values for controlling format
     const string sep = "	" ;
@@ -176,5 +190,11 @@ ofstream myfile1;
   myfile1 <<
 left << nrun << sep << left << charge_sum_cut/1000 << sep << left <<  ave_current_cut/(nscal_reads_cut) << sep;
   myfile1.close();
+
+ofstream myfile2;
+  myfile2.open ("efficiencies", fstream::app);	
+  myfile2 << 
+left << nrun << sep << left << edtm_lt << sep << left << cpult << "\n";
+  myfile2.close();
 
 }

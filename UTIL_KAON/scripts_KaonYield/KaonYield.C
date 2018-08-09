@@ -309,7 +309,7 @@ void KaonYield::Terminate()
   cpID->cd(7); h1mmissp->Draw();
   cpID->cd(8); h1mmissp_cut->Draw();
 
-  cout << Form("Number of good kaon events: %.0f +/- %.0f\n",200*Lambda_Fit->Integral(1.1,1.2),sqrt(200*Lambda_Fit->Integral(0.75,1.5)));
+  cout << Form("Number of good kaon events: %.0f +/- %.0f\n",200*Lambda_Fit->Integral(1.05,1.2),sqrt(200*Lambda_Fit->Integral(1.05,1.2)));
 
   // values for controlling format
   const string sep = "	" ;
@@ -320,6 +320,6 @@ void KaonYield::Terminate()
   ofstream myfile1;
   myfile1.open ("kaonyieldVar", fstream::app);
   myfile1 <<
-    left << 0.005*Lambda_Fit->Integral(0.75,1.5) << "\n";
+    left << 200*Lambda_Fit->Integral(1.05,1.2) << "\n";
   myfile1.close();
 }
