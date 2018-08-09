@@ -28,41 +28,71 @@ class KaonYield : public TSelector {
   TTree          *fChain = 0;   //!pointer to the analyzed TTree or TChain
 
   //Declare Histograms
-  TH2F           *h2ROC1_Coin_Beta_noID;
-  TH2F           *h2ROC1_Coin_Beta;
+  TH2F           *h2ROC1_Coin_Beta_noID_kaon;
+  TH2F           *h2ROC1_Coin_Beta_kaon;
+  TH2F           *h2ROC1_Coin_Beta_noID_pion;
+  TH2F           *h2ROC1_Coin_Beta_pion;
+  TH2F           *h2ROC1_Coin_Beta_noID_proton;
+  TH2F           *h2ROC1_Coin_Beta_proton;
 
   TH1F           *h1HMS_electron;
   TH1F           *h1HMS_electron_cut;
   TH1F           *h1SHMS_electron;
   TH1F           *h1SHMS_electron_cut;
 
-  TH2F           *h2SHMS_kaon;
-  TH2F           *h2SHMS_kaon_cut;
+  TH2F           *h2SHMSK_kaon;
+  TH2F           *h2SHMSK_kaon_cut;
+  TH2F           *h2SHMSK_pion;
+  TH2F           *h2SHMSK_pion_cut;
+
+  TH2F           *h2SHMSpi_kaon;
+  TH2F           *h2SHMSpi_kaon_cut;
+  TH2F           *h2SHMSpi_pion;
+  TH2F           *h2SHMSpi_pion_cut;
+
+  TH2F           *h2SHMSp_kaon;
+  TH2F           *h2SHMSp_kaon_cut;
+  TH2F           *h2SHMSp_pion;
+  TH2F           *h2SHMSp_pion_cut;
+
+  TH2F           *h2SHMS_pion;
+  TH2F           *h2SHMS_pion_cut;
 
   TH1F           *h1SHMS_delta;
   TH1F           *h1SHMS_delta_cut;
   TH1F           *h1HMS_delta;
   TH1F           *h1HMS_delta_cut;
 
-  TH1F           *h1mmiss;
-  TH1F           *h1mmiss_cut;
+  TH1F           *h1mmissK;
+  TH1F           *h1mmissK_cut;
+
+  TH1F           *h1mmisspi;
+  TH1F           *h1mmisspi_cut;
+
+  TH1F           *h1mmissp;
+  TH1F           *h1mmissp_cut;
 
   // Readers to access the data (delete the ones you do not need).
-  TTreeReaderArray<Double_t> CTime_eKCoinTime_ROC1 = {fReader, "CTime.eKCoinTime_ROC1"};
+  TTreeReaderArray<Double_t> CTime_eKCoinTime_ROC1  = {fReader, "CTime.eKCoinTime_ROC1"};
+  TTreeReaderArray<Double_t> CTime_ePiCoinTime_ROC1 = {fReader, "CTime.ePiCoinTime_ROC1"};
+  TTreeReaderArray<Double_t> CTime_epCoinTime_ROC1  = {fReader, "CTime.epCoinTime_ROC1"};
   TTreeReaderArray<Double_t> P_gtr_beta         = {fReader, "P.gtr.beta"};
   TTreeReaderArray<Double_t> H_gtr_beta         = {fReader, "H.gtr.beta"};
   TTreeReaderArray<Double_t> H_cal_etotnorm     = {fReader, "H.cal.etotnorm"}; 
+  TTreeReaderArray<Double_t> H_cer_npeSum       = {fReader, "H.cer.npeSum"};
   TTreeReaderArray<Double_t> P_cal_etotnorm     = {fReader, "P.cal.etotnorm"};
   TTreeReaderArray<Double_t> P_aero_npeSum      = {fReader, "P.aero.npeSum"};
   TTreeReaderArray<Double_t> P_hgcer_npeSum     = {fReader, "P.hgcer.npeSum"};
+  TTreeReaderArray<Double_t> P_ngcer_npeSum     = {fReader, "P.ngcer.npeSum"};
   TTreeReaderArray<Double_t> H_gtr_dp           = {fReader, "H.gtr.dp"};
   TTreeReaderArray<Double_t> P_gtr_dp           = {fReader, "P.gtr.dp"};
+  TTreeReaderArray<Double_t> P_gtr_p           = {fReader, "P.gtr.p"};
   TTreeReaderArray<Double_t> emiss              = {fReader, "P.kin.secondary.emiss"};
   TTreeReaderArray<Double_t> pmiss              = {fReader, "P.kin.secondary.pmiss"};
   TTreeReaderValue<Int_t>    fEvtType           = {fReader, "fEvtHdr.fEvtType"};
 
 
-  KaonYield(TTree * /*tree*/ =0) {h2ROC1_Coin_Beta_noID=0, h2ROC1_Coin_Beta=0, h1HMS_electron=0, h1HMS_electron_cut=0, h1SHMS_electron=0, h1SHMS_electron_cut=0, h2SHMS_kaon=0, h2SHMS_kaon_cut=0, h1SHMS_delta=0, h1SHMS_delta_cut=0, h1HMS_delta=0, h1HMS_delta_cut=0, h1mmiss=0, h1mmiss_cut=0;}
+  KaonYield(TTree * /*tree*/ =0) {h2ROC1_Coin_Beta_noID_kaon=0, h2ROC1_Coin_Beta_kaon=0, h2ROC1_Coin_Beta_noID_pion=0, h2ROC1_Coin_Beta_pion=0, h2ROC1_Coin_Beta_noID_proton=0, h2ROC1_Coin_Beta_proton=0,h1HMS_electron=0, h1HMS_electron_cut=0, h1SHMS_electron=0, h1SHMS_electron_cut=0, h2SHMSK_kaon=0, h2SHMSK_kaon_cut=0, h2SHMSK_pion=0, h2SHMSK_pion_cut=0, h2SHMSpi_kaon=0, h2SHMSpi_kaon_cut=0, h2SHMSpi_pion=0, h2SHMSpi_pion_cut=0, h2SHMSp_kaon=0, h2SHMSp_kaon_cut=0, h2SHMSp_pion=0, h2SHMSp_pion_cut=0,h1SHMS_delta=0, h1SHMS_delta_cut=0, h1HMS_delta=0, h1HMS_delta_cut=0, h1mmissK=0, h1mmissK_cut=0, h1mmisspi=0, h1mmisspi_cut=0, h1mmissp=0, h1mmissp_cut=0;}
   virtual ~KaonYield() { }
   virtual Int_t   Version() const { return 2; }
   virtual void    Begin(TTree *tree);

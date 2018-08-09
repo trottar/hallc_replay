@@ -43,11 +43,8 @@ void run_KaonYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_c
   ch.Add(Form("../../ROOTfiles/coin_replay_production_%i_%i.root",RunNumber,MaxEvent));
 
   TProof *proof = TProof::Open("workers=4");
-  proof->SetProgressDialog(0);  
+  //proof->SetProgressDialog(0);  
   ch.SetProof();
   ch.Process("KaonYield.C+");
   proof->Close();
-
-  
-  
 }

@@ -21,6 +21,14 @@ if [[ $2 -eq "" && $3 -eq "" ]]; then
     exit 2    
 fi
 cd ../
+echo -e "\n\nStarting Scaler Replay Script\n\n"
+hcana -q "SCRIPTS/COIN/SCALERS/replay_coin_scalers.C($RUNNUMBER,100000)"
+cd CALIBRATION/bcm_current_map/
+root -b<<EOF
+.x run.C("../../ROOTfiles/coin_replay_scalers_${RUNNUMBER}_150000.root")
+EOF
+mv bcmcurrent_$RUNNUMBER.param ../../PARAM/HMS/BCM/CALIB/bcmcurrent_$RUNNUMBER.param
+cd ../../
 echo -e "\n\nStarting Replay Script\n\n"
 hcana -q "UTIL_KAON/scripts_Replay/replay_production_coin.C($RUNNUMBER,$MAXEVENTS)"
 cd UTIL_KAON/scripts_KaonYield/
